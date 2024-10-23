@@ -6,9 +6,14 @@ const path = require('path');
 const express = require('express');
 const firebaseConfig = require('./lib/firebase');
 
-// Inisialisasi Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+
+// Periksa apakah Firebase sudah diinisialisasi
+if (!firebase.getApps().length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+// Mengakses database
+const db = firebase.database();
 
 // Inisialisasi Discord client
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
