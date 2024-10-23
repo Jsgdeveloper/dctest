@@ -5,7 +5,7 @@ module.exports = {
         // Log untuk melihat objek message
         console.log('Pesan diterima:', message);
 
-        // Pastikan message terdefinisi
+        // Pastikan message terdefinisi dan channel terdefinisi
         if (!message || !message.channel) {
             console.error('Pesan tidak valid atau channel tidak terdefinisi');
             return;
@@ -34,3 +34,4 @@ module.exports = {
             });
     }
 };
+            
