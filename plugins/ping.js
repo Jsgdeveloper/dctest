@@ -24,7 +24,7 @@ module.exports = {
                 { name: 'Latency', value: `\`${latency}ms\``, inline: true },
                 { name: 'API Latency', value: `\`${apiLatency}ms\``, inline: true }
             )
-            .setFooter({ text: 'Powered by JsBots', iconURL: 'https://i.imgur.com/AfFp7pu.png' }) // Icon optional
+            .setFooter({ text: 'Powered by JsBots', iconURL: 'https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg' }) // Icon optional
             .setTimestamp(); // Timestamp sekarang
         
         // Mengirimkan embed ke channel
