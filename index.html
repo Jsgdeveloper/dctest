@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Website Hencoders</title>
+  <link rel="stylesheet" href="https://unpkg.com/tailwindcss@2.2.19/dist/tailwind.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Border putih untuk card lebih tebal */
+    .card-border {
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Efek mengambang */
+    .card-hover:hover {
+      box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Gambar profil bundar */
+    .profile-img {
+      width: 80px; /* Ukuran tetap */
+      height: 80px;
+      border-radius: 50%; /* Biar bundar */
+      border: 2px solid white; /* Garis putih */
+      margin-top: -30px; /* Diangkat sedikit */
+    }
+
+    /* Style untuk garis bawah gradient */
+    .gradient-line {
+      height: 3px;
+      background: linear-gradient(270deg, #ff7e5f, #feb47b, #ff7e5f);
+      animation: gradient-animation 3s linear infinite;
+    }
+
+    @keyframes gradient-animation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Style untuk box informasi */
+    .info-box {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      background-color: rgba(0, 0, 0, 0.5); /* Hitam transparan */
+      border-radius: 10px;
+      border: 1px solid white; /* Border putih */
+      width: auto; /* Mengikuti ukuran konten */
+      cursor: pointer;
+    }
+
+    .info-icon {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #000; /* Hitam pekat */
+      border-radius: 10px; /* Rounded */
+      margin-right: 10px;
+    }
+
+    .info-icon i {
+      font-size: 1.2rem;
+      color: #FFD700; /* Warna emas */
+    }
+
+    .info-text {
+      font-size: 0.75rem; /* Ukuran lebih kecil lagi */
+      color: #fff; /* Teks putih */
+    }
+
+    /* Responsif dan fix center */
+    .center-card {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+    }
+
+    /* Card lebih ramping */
+    .card-size {
+      max-width: 300px; /* Lebar card lebih kecil lagi */
+      padding: 20px;
+    }
+
+    /* Tombol Dashboard */
+    .floating-btn {
+      background-color: rgba(0, 128, 0, 0.9); /* Warna hijau */
+      color: white;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Style untuk deskripsi */
+    .description {
+      font-size: 0.85rem;
+      color: white;
+      font-style: italic;
+    }
+
+  </style>
+</head>
+
+<body class="font-sans antialiased text-gray-900 leading-normal tracking-wider" style="background-image: url('https://i.ibb.co.com/ctz7YpB/background.webp'); background-size: cover;">
+
+  <div class="center-card">
+    <div id="profile" class="w-full card-size rounded-lg shadow-2xl bg-white bg-opacity-10 card-border card-hover" style="backdrop-filter: blur(10px);">
+      <div class="text-center lg:text-left">
+        <!-- Gambar Profil -->
+        <div class="flex justify-center lg:justify-start">
+          <img src="https://i.ibb.co.com/Qrj0RpN/profile.webp" alt="Foto Profil" class="profile-img">
+        </div><br>
+        
+        <!-- Nama HenCoders -->
+        <h1 class="text-white text-2xl font-bold">HenCoders</h1>
+        
+        <!-- Garis Bawah Gradient -->
+        <div class="gradient-line mb-4"></div>
+
+        <!-- Informasi dengan logo dan box transparan hitam -->
+        <div class="mt-2">
+          <!-- Box untuk WhatsApp -->
+          <a href="https://wa.me/+6285624128286" target="_blank">
+            <div class="info-box">
+              <div class="info-icon">
+                <i class="fab fa-whatsapp"></i>
+              </div>
+              <span class="info-text">+6285624128286</span>
+            </div>
+          </a>
+
+          <!-- Box untuk Email -->
+          <a href="mailto:jamasantuygamers@gmail.com" target="_blank">
+            <div class="info-box">
+              <div class="info-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <span class="info-text">jamasantuygamers@gmail.com</span>
+            </div>
+          </a>
+
+          <!-- Box untuk Tanggal Lahir -->
+          <div class="info-box">
+            <div class="info-icon">
+              <i class="fas fa-calendar"></i>
+            </div>
+            <span class="info-text">13 Juli 2001</span>
+          </div>
+
+          <!-- Box untuk Lokasi -->
+          <div class="info-box">
+            <div class="info-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <span class="info-text">Pabedilan, Jawa Barat, Indo</span>
+          </div>
+        </div>
+
+        <!-- Deskripsi -->
+        <p class="description mt-4">Dalam dunia virtual, kita dapat menjadi diri sendiri yang sejati, karena dunia nyata kadang terlalu keras bagi kita, anak-anak introvert.</p>
+
+        <!-- Garis di atas tombol -->
+        <div class="gradient-line mt-4"></div><br>
+
+        <!-- Tombol Dashboard -->
+        <div class="mt-4 flex justify-center">
+          <button class="floating-btn" onclick="redirectToLogin()">Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function redirectToLogin() {
+      // Memeriksa status login menggunakan Firebase
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          // Jika sudah login, alihkan ke Dashboard
+          window.location.href = 'Dashboard.html';
+        } else {
+          // Jika belum login, alihkan ke login
+          window.location.href = 'website/login.html';
+        }
+      });
+    }
+  </script>
+
+  <!-- Tambahkan Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script>
+    // Konfigurasi Firebase Anda
+    var firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    // Inisialisasi Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</body>
+
+</html>

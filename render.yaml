@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: jsbots
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      DISCORD_TOKEN:
+        fromSecret: discord-token
+      FIREBASE_API_KEY:
+        fromSecret: firebase-api-key
