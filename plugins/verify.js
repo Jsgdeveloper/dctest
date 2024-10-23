@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const db = require('../lib/firebase'); // Pastikan sudah ada koneksi ke Firebase
 
 module.exports = {
     name: 'verify',
