@@ -1,62 +1,50 @@
 const { EmbedBuilder } = require('discord.js');
-const { getDatabase, ref, get, update } = require('firebase/database');
-
-// ID Admin (ganti dengan ID Admin yang sesuai)
-const AdminID = '1250940447325421663'; // Ganti dengan ID Discord Admin
+const db = require('../lib/firebase'); // Pastikan sudah ada koneksi ke Firebase
 
 module.exports = {
     name: 'addcoin',
-    description: 'Menambahkan coin ke user (Admin Only)',
-    execute: async (message, args) => {
-        // Cek apakah user adalah admin
-        if (message.author.id !== AdminID) {
-            return message.reply("❌ Kamu tidak diizinkan menggunakan perintah ini. Hanya Admin yang bisa!");
+    description: 'Menambah coin untuk pengguna tertentu (hanya untuk pembuat bot)',
+    async execute(message, args) {
+        // Cek jika yang menjalankan adalah pembuat bot
+        const creatorId = '1250940447325421663'; // Ganti dengan ID Discord pembuat bot (JsCoders)
+
+        if (message.author.id !== creatorId) {
+            return message.reply('Anda tidak memiliki izin untuk menggunakan perintah ini.');
         }
 
-        // Cek apakah argumen benar
-        if (args.length < 2) {
-            return message.reply("❌ Format salah! Gunakan `!addcoin <userID> <jumlahCoin>`");
+        const username = args[0]; // Username dari pengguna
+        const amount = parseInt(args[1]); // Jumlah coin yang ingin ditambahkan
+
+        if (!username || isNaN(amount) || amount <= 0) {
+            return message.reply('Silakan masukkan username dan jumlah coin yang valid.');
         }
 
-        const userID = args[0];
-        const jumlahCoin = parseInt(args[1]);
+        // Cari pengguna berdasarkan username
+        const userRef = db.ref(`users`).orderByChild('username').equalTo(username);
+        const snapshot = await userRef.once('value');
 
-        if (isNaN(jumlahCoin)) {
-            return message.reply("❌ Jumlah coin harus berupa angka!");
+        if (!snapshot.exists()) {
+            return message.reply(`Pengguna dengan username ${username} tidak ditemukan.`);
         }
 
-        // Ambil database Firebase
-        const db = getDatabase();
-        const userRef = ref(db, `users/${userID}`);
+        // Mendapatkan ID pengguna dari snapshot
+        const userId = Object.keys(snapshot.val())[0];
+        const userData = snapshot.val()[userId];
 
-        try {
-            const snapshot = await get(userRef);
-            if (!snapshot.exists()) {
-                return message.reply("❌ Pengguna tidak ditemukan di database.");
-            }
+        // Tambahkan coin
+        await db.ref(`users/${userId}`).update({
+            coin: (userData.coin || 0) + amount,
+        });
 
-            const userData = snapshot.val();
-            const updatedCoin = (userData.coin || 0) + jumlahCoin;
+        // Kirimkan pesan konfirmasi
+        const embedSuccess = new EmbedBuilder()
+            .setColor('#6BFF6B')
+            .setTitle('🎉 Coin Berhasil Ditambahkan!')
+            .setDescription(`Anda telah menambahkan **${amount}** coin untuk pengguna **${username}**.`)
+            .setFooter({ text: 'JsBots by JsCoders', iconURL: 'https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg' })
+            .setTimestamp();
 
-            // Update coin pengguna
-            await update(userRef, { coin: updatedCoin });
-
-            // Membuat embed keren untuk notifikasi
-            const embed = new EmbedBuilder()
-                .setColor('#00FF00')
-                .setTitle('💰 Coin Ditambahkan!')
-                .setDescription(`**Admin** telah berhasil menambahkan **${jumlahCoin} coin** kepada **${userData.username}**.`)
-                .addFields(
-                    { name: 'Total Coin Sekarang', value: `${updatedCoin} coin` }
-                )
-                .setThumbnail('https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg')
-                .setFooter({ text: 'Powered by JsBots', iconURL: 'https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg' })
-                .setTimestamp();
-
-            message.channel.send({ embeds: [embed] });
-        } catch (error) {
-            console.error(error);
-            message.reply("❌ Terjadi kesalahan saat menambahkan coin.");
-        }
-    }
+        message.channel.send({ embeds: [embedSuccess] });
+    },
 };
+            
