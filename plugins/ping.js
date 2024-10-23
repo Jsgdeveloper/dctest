@@ -4,8 +4,10 @@ module.exports = {
     execute(message) {
         // Mengukur latency
         const latency = Date.now() - message.createdTimestamp;
-        const apiLatency = Math.round(message.client.ws.ping);
         
+        // Pastikan message.client dan ws terdefinisi sebelum mengaksesnya
+        const apiLatency = message.client?.ws?.ping ? Math.round(message.client.ws.ping) : 'N/A';
+
         // Membuat embed yang lebih keren
         const embed = new EmbedBuilder()
             .setColor('#00FF00') // Warna hijau
