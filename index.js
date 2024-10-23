@@ -2,57 +2,39 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const { initializeApp } = require('firebase/app');
 const { getDatabase } = require('firebase/database');
 const firebaseConfig = require('./lib/firebase');
+const pingCommand = require('./plugins/ping');
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
 
 // Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // Inisialisasi Discord client
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.DirectMessages] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-// Definisikan Admin ID
+// Definisikan Admin ID (ganti dengan ID admin yang sesuai)
 const AdminID = '1250940447325421663'; // Ganti dengan ID Discord pembuat (JsCoders)
-
-// Mengambil semua plugin dari folder 'plugins'
-const commandFiles = fs.readdirSync('./plugins').filter(file => file.endsWith('.js'));
-const commands = {};
-
-// Memuat semua plugin ke dalam objek commands
-for (const file of commandFiles) {
-    const command = require(`./plugins/${file}`);
-    commands[file.split('.')[0]] = command; // Menyimpan command dengan nama file
-}
 
 client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag} - JsBots by JsCoders!`);
 });
 
 // Command handler sederhana
-client.on('messageCreate', async (message) => {
-    if (!message.author.bot) { // Mengabaikan pesan dari bot lain
-        const args = message.content.slice(1).trim().split(/ +/);
-        const commandName = args.shift().toLowerCase();
+client.on('messageCreate', (message) => {
+    // Mengabaikan pesan dari bot itu sendiri
+    if (message.author.bot) return;
 
-        if (commands[commandName]) {
-            await commands[commandName].execute(message.author.id, message);
-        }
-
-        client.on('messageCreate', (message) => {
     if (message.content === '!ping') {
         pingCommand.execute(message);
     }
-});
 
-        // Contoh penggunaan AdminID
-        if (commandName === 'admin') {
-            if (message.author.id === AdminID) {
-                message.channel.send(`Halo Admin! Anda dikenal sebagai pencipta JsBots.`);
-            } else {
-                message.channel.send(`Anda tidak dikenali sebagai admin.`);
-            }
+    // Contoh penggunaan AdminID
+    if (message.content === '!admin') {
+        if (message.author.id === AdminID) {
+            message.channel.send(`Halo Admin! Anda dikenal sebagai pencipta JsBots.`);
+        } else {
+            message.channel.send(`Anda tidak dikenali sebagai admin.`);
         }
     }
 });
@@ -76,3 +58,4 @@ appExpress.get('/', (req, res) => {
 appExpress.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+    
