@@ -29,7 +29,8 @@ module.exports = {
             const snapshot = await userRef.once('value');
             const userData = snapshot.val();
 
-            if (!userData) {
+            // Memastikan user ada dan juga menangani admin
+            if (!userData && !message.member.permissions.has('ADMINISTRATOR')) {
                 const embedNoUser = new EmbedBuilder()
                     .setColor('#FF6B6B')
                     .setTitle('🚫 Akun Tidak Ditemukan')
@@ -40,13 +41,13 @@ module.exports = {
                 return message.channel.send({ embeds: [embedNoUser] });
             }
 
-            if (userData.verificationCode === code) {
+            if (userData && userData.verificationCode === code) {
                 await userRef.update({ verified: true });
 
                 const embedSuccess = new EmbedBuilder()
                     .setColor('#6BFF6B')
                     .setTitle('🎉 Verifikasi Berhasil!')
-                    .setDescription(`Selamat, **${userData.username}**! Akun Anda telah berhasil diverifikasi. Anda sekarang bisa menikmati semua fitur!`)
+                    .setDescription(`Selamat, **${userData.username || message.author.username}**! Akun Anda telah berhasil diverifikasi. Anda sekarang bisa menikmati semua fitur!`)
                     .setThumbnail('https://i.imgur.com/N20hHqT.png') // Thumbnail lucu
                     .addFields(
                         { name: '🎈 Selamat Datang!', value: 'Anda sudah menjadi bagian dari komunitas JsBots!', inline: false },
@@ -56,6 +57,18 @@ module.exports = {
                     .setTimestamp();
 
                 message.channel.send({ embeds: [embedSuccess] });
+            } else if (message.member.permissions.has('ADMINISTRATOR')) {
+                // Logika untuk admin yang dapat verifikasi tanpa kode
+                await userRef.update({ verified: true });
+
+                const embedAdminSuccess = new EmbedBuilder()
+                    .setColor('#6BFF6B')
+                    .setTitle('🎉 Verifikasi Berhasil oleh Admin!')
+                    .setDescription(`**${message.author.username}** telah berhasil memverifikasi akun tanpa kode.`)
+                    .setFooter({ text: 'JsBots by JsCoders', iconURL: 'https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg' })
+                    .setTimestamp();
+
+                message.channel.send({ embeds: [embedAdminSuccess] });
             } else {
                 const embedWrongCode = new EmbedBuilder()
                     .setColor('#FFA500')
@@ -85,4 +98,4 @@ module.exports = {
         }
     },
 };
-                                
+                    
