@@ -1,22 +1,34 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const { initializeApp } = require('firebase/app');
+const { initializeApp, getApps } = require('firebase/app');
 const { getDatabase } = require('firebase/database');
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const firebaseConfig = require('./lib/firebase');
 
+// Konfigurasi Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBKMvTYVmd9t3_BAhuGkqW57umgXAco82c",
+    authDomain: "jamasantuy-d22b2.firebaseapp.com",
+    databaseURL: "https://jamasantuy-d22b2-default-rtdb.firebaseio.com",
+    projectId: "jamasantuy-d22b2",
+    storageBucket: "jamasantuy-d22b2.appspot.com",
+    messagingSenderId: "734414764994",
+    appId: "1:734414764994:web:cde068f7bdde79116e745b",
+    measurementId: "G-M1P0CGWNNQ"
+};
 
-// Periksa apakah Firebase sudah diinisialisasi
-if (!firebase.getApps().length) {
-    firebase.initializeApp(firebaseConfig);
+// Inisialisasi Firebase hanya jika belum diinisialisasi
+if (!getApps().length) {
+    initializeApp(firebaseConfig);
 }
 
-// Mengakses database
-const db = firebase.database();
+// Mengakses database Firebase
+const db = getDatabase();
 
 // Inisialisasi Discord client
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
+});
 
 // Membuat koleksi commands untuk menyimpan semua perintah
 client.commands = new Collection();
@@ -92,4 +104,4 @@ appExpress.get('/', (req, res) => {
 appExpress.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-          
+    
