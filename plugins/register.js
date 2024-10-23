@@ -49,7 +49,7 @@ module.exports = {
 
         // Kirim kode verifikasi ke DM user
         try {
-            await message.author.send(`Halo **${username}**! Ini adalah kode verifikasi kamu: \`${verificationCode}\`. Gunakan perintah \`!verif <kode>\` di server untuk memverifikasi akun kamu.`);
+            await message.author.send(`Halo **${username}**! Ini adalah kode verifikasi kamu: \`${verificationCode}\`. Gunakan perintah \`!verify <kode>\` di server untuk memverifikasi akun kamu.`);
         } catch (error) {
             console.error('Gagal mengirim pesan pribadi:', error);
             message.reply('❌ Gagal mengirim kode verifikasi ke pesan pribadi.');
