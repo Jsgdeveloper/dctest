@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const { db, ref } = require('../lib/firebase'); // Pastikan mengarah ke file inisialisasi Firebase
 
 module.exports = {
     name: 'addcoin',
