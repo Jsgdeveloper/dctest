@@ -40,6 +40,12 @@ client.on('messageCreate', async (message) => {
             await commands[commandName].execute(message.author.id, message);
         }
 
+        client.on('messageCreate', (message) => {
+    if (message.content === '!ping') {
+        pingCommand.execute(message);
+    }
+});
+
         // Contoh penggunaan AdminID
         if (commandName === 'admin') {
             if (message.author.id === AdminID) {
