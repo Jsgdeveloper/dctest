@@ -1,51 +1,59 @@
-const { getDatabase, ref, set, get, child } = require('firebase/database');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
+const { getDatabase, ref, get, set } = require('firebase/database');
+const crypto = require('crypto');
+
+// ID Admin (ganti dengan ID Admin yang sesuai)
+const AdminID = '1250940447325421663'; // Ganti dengan ID Discord Admin
 
 module.exports = {
+    name: 'register',
+    description: 'Daftar user ke database Firebase',
     async execute(message) {
-        const db = getDatabase();
-        const userId = message.author.id;
+        const userID = message.author.id;
         const username = message.author.username;
-        const verificationCode = Math.floor(100000 + Math.random() * 900000); // Kode verifikasi 6 digit
 
-        // Referensi ke path pengguna di database
-        const userRef = ref(db, `users/${userId}`);
+        // Cek jika sudah terdaftar
+        const db = getDatabase();
+        const userRef = ref(db, `users/${userID}`);
 
-        // Cek apakah pengguna sudah terdaftar
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+            return message.reply('❌ Kamu sudah terdaftar!');
+        }
+
+        // Generate kode verifikasi unik
+        const verificationCode = crypto.randomBytes(4).toString('hex');
+
+        // Simpan data ke Firebase
+        await set(userRef, {
+            id: userID,
+            username: username,
+            coin: 0,
+            banned: false,
+            dailyClaimed: false,
+            verificationCode: verificationCode,
+            isVerified: false,
+            isAdmin: userID === AdminID // Cek apakah user adalah admin
+        });
+
+        // Embed pesan registrasi
+        const embed = new EmbedBuilder()
+            .setColor('#00FF00')
+            .setTitle('📋 Pendaftaran Berhasil!')
+            .setDescription(`Hai **${username}**, kamu telah terdaftar. Silakan cek pesan pribadimu untuk kode verifikasi.`)
+            .setThumbnail('https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg')
+            .setFooter({ text: 'Powered by JsBots', iconURL: 'https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg' })
+            .setTimestamp();
+
+        message.channel.send({ embeds: [embed] });
+
+        // Kirim kode verifikasi ke DM user
         try {
-            const snapshot = await get(child(userRef, '/'));
-            if (snapshot.exists()) {
-                message.channel.send(`🌟 Anda sudah terdaftar sebagai **${username}**!`);
-                return;
-            }
-
-            // Jika belum terdaftar, simpan data pengguna
-            await set(userRef, {
-                id: userId,
-                username: username,
-                coin: 0,
-                banned: false,
-                daily: 0,
-                verified: false,
-                verificationCode: verificationCode // Simpan kode verifikasi
-            });
-
-            // Kirim pesan verifikasi ke DM pengguna
-            await message.author.send(`🎉 Selamat datang, **${username}**! Anda telah terdaftar. Kode verifikasi Anda adalah **${verificationCode}**. Silakan verifikasi dengan mengetik **!verif ${verificationCode}** di DM!`);
-
-            // Kirim embed pesan pendaftaran
-            const embed = new MessageEmbed()
-                .setColor('#00FF00') // Warna hijau
-                .setTitle('Pendaftaran Berhasil!')
-                .setDescription(`👋 Halo, **${username}**! Silakan cek DM Anda untuk kode verifikasi. 😄`)
-                .setFooter({ text: 'Powered by JsBots', iconURL: 'https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg' }) // Icon optional
-                .setTimestamp(); // Timestamp sekarang
-
-            message.channel.send({ embeds: [embed] });
-
+            await message.author.send(`Halo **${username}**! Ini adalah kode verifikasi kamu: \`${verificationCode}\`. Gunakan perintah \`!verif <kode>\` di server untuk memverifikasi akun kamu.`);
         } catch (error) {
-            console.error('Error fetching user data:', error);
-            message.channel.send('❌ Terjadi kesalahan saat mendaftar. Silakan coba lagi nanti.');
+            console.error('Gagal mengirim pesan pribadi:', error);
+            message.reply('❌ Gagal mengirim kode verifikasi ke pesan pribadi.');
         }
     }
 };
+    
