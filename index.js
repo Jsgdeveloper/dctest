@@ -1,10 +1,10 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { initializeApp } = require('firebase/app');
 const { getDatabase } = require('firebase/database');
-const firebaseConfig = require('./lib/firebase');
-const pingCommand = require('./plugins/ping');
-const express = require('express');
+const fs = require('fs');
 const path = require('path');
+const express = require('express');
+const firebaseConfig = require('./lib/firebase');
 
 // Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
@@ -13,6 +13,18 @@ const db = getDatabase(app);
 // Inisialisasi Discord client
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
+// Membuat koleksi commands untuk menyimpan semua perintah
+client.commands = new Collection();
+
+// Membaca semua file plugin dari folder "plugins"
+const commandFiles = fs.readdirSync('./plugins').filter(file => file.endsWith('.js'));
+
+for (const file of commandFiles) {
+    const command = require(`./plugins/${file}`);
+    // Menggunakan nama file sebagai nama perintah
+    client.commands.set(file.replace('.js', ''), command);
+}
+
 // Definisikan Admin ID (ganti dengan ID admin yang sesuai)
 const AdminID = '1250940447325421663'; // Ganti dengan ID Discord pembuat (JsCoders)
 
@@ -20,17 +32,34 @@ client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag} - JsBots by JsCoders!`);
 });
 
-// Command handler sederhana
-client.on('messageCreate', (message) => {
-    // Mengabaikan pesan dari bot itu sendiri
+// Event listener untuk messageCreate
+client.on('messageCreate', async (message) => {
+    // Abaikan pesan dari bot sendiri atau tanpa prefix
     if (message.author.bot) return;
+    
+    const prefix = '!';
+    if (!message.content.startsWith(prefix)) return;
 
-    if (message.content === '!ping') {
-        pingCommand.execute(message);
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
+
+    // Cek apakah perintah ada di koleksi commands
+    const command = client.commands.get(commandName);
+    if (!command) {
+        message.channel.send("Perintah tidak dikenali.");
+        return;
+    }
+
+    // Jalankan perintah
+    try {
+        await command.execute(message, args, db); // Tambahkan argumen db jika diperlukan
+    } catch (error) {
+        console.error(error);
+        message.reply('Ada kesalahan saat mencoba mengeksekusi perintah ini!');
     }
 
     // Contoh penggunaan AdminID
-    if (message.content === '!admin') {
+    if (commandName === 'admin') {
         if (message.author.id === AdminID) {
             message.channel.send(`Halo Admin! Anda dikenal sebagai pencipta JsBots.`);
         } else {
@@ -58,4 +87,4 @@ appExpress.get('/', (req, res) => {
 appExpress.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-    
+          
