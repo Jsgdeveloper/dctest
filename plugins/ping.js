@@ -2,10 +2,17 @@ const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     execute(message) {
+        // Log untuk melihat objek message
+        console.log('Pesan diterima:', message);
+
+        // Pastikan message terdefinisi
+        if (!message || !message.channel) {
+            console.error('Pesan tidak valid atau channel tidak terdefinisi');
+            return;
+        }
+
         // Mengukur latency
         const latency = Date.now() - message.createdTimestamp;
-        
-        // Pastikan message.client dan ws terdefinisi sebelum mengaksesnya
         const apiLatency = message.client?.ws?.ping ? Math.round(message.client.ws.ping) : 'N/A';
 
         // Membuat embed yang lebih keren
@@ -21,6 +28,9 @@ module.exports = {
             .setTimestamp(); // Timestamp sekarang
         
         // Mengirimkan embed ke channel
-        message.channel.send({ embeds: [embed] });
+        message.channel.send({ embeds: [embed] })
+            .catch(err => {
+                console.error('Error mengirim pesan:', err);
+            });
     }
 };
