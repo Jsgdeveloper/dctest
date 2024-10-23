@@ -1,77 +1,58 @@
-const { EmbedBuilder } = require('discord.js');
-const db = require('../lib/firebase'); // Pastikan sudah ada koneksi ke Firebase
+const { MessageEmbed } = require('discord.js');
 
 module.exports = {
     name: 'slot',
-    description: 'Permainan slot sederhana dengan peluang 50% kemenangan.',
+    description: 'Slot game dengan animasi keren!',
     async execute(message, args) {
+        // Ambil taruhan dari args
         const bet = parseInt(args[0]);
-
-        if (isNaN(bet) || bet <= 0) {
-            return message.reply('Silakan masukkan jumlah taruhan yang valid.');
+        if (!bet || isNaN(bet) || bet <= 0) {
+            return message.reply('Taruhan tidak valid, silakan masukkan angka yang valid!');
         }
 
-        // Mengambil data pengguna dari Firebase
-        const userId = message.author.id;
-        const userRef = db.ref(`users/${userId}`);
-        const userSnapshot = await userRef.once('value');
+        // Daftar emoji buah
+        const fruits = ['🍎', '🍌', '🍒', '🍇', '🍉', '🍓', '🍍'];
 
-        if (!userSnapshot.exists()) {
-            return message.reply('Anda belum terdaftar. Silakan daftar terlebih dahulu menggunakan !register.');
+        // Pilih 3 buah acak
+        const spinResult = [];
+        for (let i = 0; i < 3; i++) {
+            spinResult.push(fruits[Math.floor(Math.random() * fruits.length)]);
         }
 
-        const userData = userSnapshot.val();
+        // Pesan awal dengan animasi emoji yang "muter"
+        let currentMessage = await message.channel.send('🎰 **Slotting...** 🎰\n' + '🔄 🔄 🔄');
 
-        // Cek saldo cukup
-        if (userData.coin < bet) {
-            return message.reply('Saldo coin Anda tidak cukup untuk taruhan ini.');
+        // Animasi "muter" dari emoji
+        for (let i = 0; i < 5; i++) {  // 5 putaran
+            let spinning = [];
+            for (let j = 0; j < 3; j++) {
+                spinning.push(fruits[Math.floor(Math.random() * fruits.length)]);
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Delay 1 detik
+            await currentMessage.edit(`🎰 **Slotting...** 🎰\n${spinning.join(' ')}`);
         }
 
-        // Mengurangi saldo taruhan
-        await userRef.update({ coin: userData.coin - bet });
+        // Mengganti buah secara bertahap dengan hasil akhir
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await currentMessage.edit(`🎰 **Slotting...** 🎰\n${spinResult[0]} 🔄 🔄`);
 
-        // Buah-buahan untuk permainan
-        const fruits = ['🍎', '🍌', '🍉'];
-        const results = [];
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await currentMessage.edit(`🎰 **Slotting...** 🎰\n${spinResult[0]} ${spinResult[1]} 🔄`);
 
-        // Mengirim pesan awal dengan efek gulir
-        let embed = new EmbedBuilder()
-            .setColor('#FFD700')
-            .setTitle('🎰 Slot Game!')
-            .setDescription(`**Taruhan:** ${bet} coins\n\n` + fruits.join(' ') + `\n\n**Menggulung...**`)
-            .setFooter({ text: 'JsBots by JsCoders', iconURL: 'https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg' });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await currentMessage.edit(`🎰 **Slotting...** 🎰\n${spinResult.join(' ')}`);
 
-        const slotMessage = await message.channel.send({ embeds: [embed] });
+        // Mengecek apakah pemain menang
+        const win = spinResult[0] === spinResult[1] && spinResult[1] === spinResult[2];
 
-        // Tunggu sejenak sebelum menampilkan hasil
-        setTimeout(async () => {
-            // Mengambil hasil slot (acak)
-            for (let i = 0; i < 3; i++) {
-                results.push(fruits[Math.floor(Math.random() * fruits.length)]);
-                embed.setDescription(`**Taruhan:** ${bet} coins\n\n` + results.join(' ') + `\n\n**Menggulung...**`);
-                await slotMessage.edit({ embeds: [embed] });
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Delay 1 detik antara tampilan buah
-            }
+        // Hasil akhir
+        const resultEmbed = new MessageEmbed()
+            .setColor(win ? '#00FF00' : '#FF0000')
+            .setTitle(win ? '🎉 KAMU MENANG! 🎉' : '😢 KAMU KALAH 😢')
+            .setDescription(`Hasil: ${spinResult.join(' ')}`)
+            .setFooter({ text: 'Powered by JsBots', iconURL: 'https://raw.githubusercontent.com/Jsgdeveloper/dctest/refs/heads/main/profile.jpg' });
 
-            // Cek hasil kemenangan
-            const uniqueFruits = [...new Set(results)];
-            let winnings = 0;
-
-            if (uniqueFruits.length === 1) {
-                winnings = bet * 2; // Menang jika semua buah sama
-            } else if (uniqueFruits.length === 2) {
-                winnings = bet; // Menang jika ada 2 buah yang sama
-            }
-
-            // Menambah coin jika menang
-            if (winnings > 0) {
-                await userRef.update({ coin: userData.coin + winnings });
-                embed.setDescription(`**Taruhan:** ${bet} coins\n\n**Hasil:** ${results.join(' ')}\n🎉 Anda menang **${winnings}** coins!`);
-            } else {
-                embed.setDescription(`**Taruhan:** ${bet} coins\n\n**Hasil:** ${results.join(' ')}\n😢 Anda kalah. Coba lagi!`);
-            }
-
-            await slotMessage.edit({ embeds: [embed] });
-        }, 2000); // Delay total 2 detik sebelum mulai menampilkan hasil
-    },
+        message.channel.send({ embeds: [resultEmbed] });
+    }
 };
+        
